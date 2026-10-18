@@ -1,0 +1,6 @@
+{
+  "name": "ডিজিটাল প্রিন্ট সার্ভিস (Digital Print Counter)",
+  "description": "সেল্ফ-সার্ভিস প্রিন্ট কাউন্টার এবং স্বয়ংক্রিয় অনলাইন পেমেন্ট ও প্রিন্ট ম্যানেজমেন্ট সিস্টেম",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

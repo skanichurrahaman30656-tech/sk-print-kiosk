@@ -1,0 +1,111 @@
+{
+  "entities": {
+    "printJob": {
+      "title": "Print Job",
+      "description": "Records self-service kiosk customer print and photocopy orders",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the print job"
+        },
+        "tokenNumber": {
+          "type": "string",
+          "description": "Kiosk token number e.g. SK-4821"
+        },
+        "documentName": {
+          "type": "string",
+          "description": "Name of the uploaded document or file"
+        },
+        "docCategory": {
+          "type": "string",
+          "description": "Category: 5 for small doc, 10 for photo/aadhaar"
+        },
+        "categoryLabel": {
+          "type": "string",
+          "description": "Readable description of selected category"
+        },
+        "pages": {
+          "type": "number",
+          "description": "Number of pages in the document"
+        },
+        "copies": {
+          "type": "number",
+          "description": "Number of copies ordered"
+        },
+        "totalCost": {
+          "type": "number",
+          "description": "Total amount paid in Indian Rupees"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "Payment method e.g. phonepe, upi, cash"
+        },
+        "paymentTrxId": {
+          "type": "string",
+          "description": "PhonePe UPI UTR transaction reference"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status: pending, printing, completed",
+          "enum": ["pending", "printing", "completed"]
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of order submission"
+        },
+        "shopLocation": {
+          "type": "string",
+          "description": "Deganga kiosk identifier"
+        }
+      },
+      "required": ["tokenNumber", "documentName", "docCategory", "pages", "copies", "totalCost", "status", "createdAt"]
+    },
+    "shopSettings": {
+      "title": "Shop Settings",
+      "description": "Configurable pricing and counter details for Deganga kiosk",
+      "type": "object",
+      "properties": {
+        "shopName": {
+          "type": "string",
+          "description": "Name of the shop e.g. SK Digital Service"
+        },
+        "payeeName": {
+          "type": "string",
+          "description": "Name of payee e.g. SK ANISUR RAHAMAN"
+        },
+        "upiId": {
+          "type": "string",
+          "description": "PhonePe UPI ID e.g. 9775743613-2@axl"
+        },
+        "smallDocPrice": {
+          "type": "number",
+          "description": "Price per page for small documents"
+        },
+        "largeDocPrice": {
+          "type": "number",
+          "description": "Price per page for large documents or photo"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp of last rate update"
+        }
+      },
+      "required": ["shopName", "payeeName", "upiId", "smallDocPrice", "largeDocPrice"]
+    }
+  },
+  "firestore": {
+    "/printJobs/{jobId}": {
+      "schema": {
+        "$ref": "#/entities/printJob"
+      },
+      "description": "Collection of all self-service customer print jobs"
+    },
+    "/settings/{settingId}": {
+      "schema": {
+        "$ref": "#/entities/shopSettings"
+      },
+      "description": "Kiosk and operator pricing configuration"
+    }
+  }
+}
