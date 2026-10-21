@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
-import { X, CheckCircle2, ArrowRight, Smartphone, ShieldCheck, Copy, Check } from 'lucide-react';
-import { SHOP_CONFIG, generateUpiUrl, formatINR } from '../utils/printCalculator.ts';
+import { X, CheckCircle2, ArrowRight, ShieldCheck, Copy, Check } from 'lucide-react';
+import { SHOP_CONFIG, generateUpiUrl, translations } from '../utils/printCalculator.ts';
 import { soundFx } from '../utils/audioSynth.ts';
 
 interface PhonePeQrModalProps {
@@ -29,17 +29,19 @@ export const PhonePeQrModal: React.FC<PhonePeQrModalProps> = ({
   const [copiedUpi, setCopiedUpi] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
+  const t = translations[lang] || translations.bn;
+
   const upiUrl = generateUpiUrl({
     upiId: SHOP_CONFIG.upiId,
     payeeName: SHOP_CONFIG.payeeName,
     amount: totalCost,
-    transactionNote: `SK Digital Deganga - ${documentName.slice(0, 15)}`,
+    transactionNote: `SK Digital - ${documentName.slice(0, 15)}`,
   });
 
   useEffect(() => {
     if (isOpen) {
       QRCode.toDataURL(upiUrl, {
-        width: 240,
+        width: 200,
         margin: 1,
         color: {
           dark: '#000000',
@@ -64,7 +66,6 @@ export const PhonePeQrModal: React.FC<PhonePeQrModalProps> = ({
   const handleConfirmPaid = () => {
     soundFx.playClick();
     setIsVerifying(true);
-    // Simulate real-time webhook confirmation from PhonePe
     setTimeout(() => {
       setIsVerifying(false);
       const generatedUpiRef = `UPI${Math.floor(100000000000 + Math.random() * 900000000000)}`;
@@ -76,7 +77,7 @@ export const PhonePeQrModal: React.FC<PhonePeQrModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-labelledby="phonepe-modal-title"
+      aria-labelledby="lblScanTitle"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-fade-in"
     >
       <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
@@ -99,7 +100,7 @@ export const PhonePeQrModal: React.FC<PhonePeQrModalProps> = ({
                 <path d="M56 24H40C37.8 24 36 25.8 36 28V72C36 74.2 37.8 76 40 76C42.2 76 44 74.2 44 72V56H56C65.4 56 73 48.4 73 39C73 29.6 65.4 24 56 24ZM56 48H44V32H56C61.5 32 66 36.5 66 40C66 43.5 61.5 48 56 48Z" fill="white"/>
               </svg>
             </div>
-            <h2 id="phonepe-modal-title" className="text-2xl font-black tracking-tight">
+            <h2 className="text-2xl font-black tracking-tight">
               PhonePe
             </h2>
           </div>
@@ -112,16 +113,16 @@ export const PhonePeQrModal: React.FC<PhonePeQrModalProps> = ({
           </p>
         </div>
 
-        {/* Modal Body with IDs requested in prompt */}
-        <div id="paymentModal" className="p-6 text-center space-y-4">
+        {/* Payment QR Modal body strictly matching IDs from prompt */}
+        <div id="paymentModal" className="p-6 text-center space-y-3.5">
           <div>
-            <h3 className="text-base font-bold text-slate-800 mb-0.5">
-              PhonePe / UPI দিয়ে স্ক্যান করুন
+            <h3 id="lblScanTitle" className="text-md font-bold text-gray-800 mb-1">
+              {t.scanTitle}
             </h3>
-            <p className="text-xs font-semibold text-slate-600">
-              নাম: <span className="font-bold text-slate-900">{SHOP_CONFIG.payeeName}</span>
+            <p id="lblPayee" className="text-xs text-gray-500 mb-2">
+              {t.payee}
             </p>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-xs text-slate-600 mt-1.5 border border-slate-200 font-mono">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-xs text-slate-600 border border-slate-200 font-mono">
               <span>UPI: {SHOP_CONFIG.upiId}</span>
               <button
                 type="button"
@@ -134,15 +135,15 @@ export const PhonePeQrModal: React.FC<PhonePeQrModalProps> = ({
             </div>
           </div>
 
-          {/* Authentic Dynamic QR Code with PhonePe Center Badge */}
+          {/* QR Code Container strictly with id="qrcode" */}
           <div className="relative inline-block p-4 bg-white rounded-2xl border-2 border-slate-200 shadow-md">
-            <div id="qrcode" className="flex justify-center items-center">
+            <div id="qrcode" className="flex justify-center items-center my-1">
               {qrDataUrl ? (
                 <div className="relative">
                   <img
                     src={qrDataUrl}
                     alt="PhonePe UPI Payment QR Code"
-                    className="w-48 h-48 rounded-lg"
+                    className="w-44 h-44 rounded-lg"
                   />
                   {/* PhonePe Center Badge */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -155,28 +156,25 @@ export const PhonePeQrModal: React.FC<PhonePeQrModalProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="w-48 h-48 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
+                <div className="w-44 h-44 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
                   QR লোড হচ্ছে...
                 </div>
               )}
             </div>
           </div>
 
-          {/* Amount Badge strictly matching prompt: <p id="payAmountText"></p> */}
-          <div>
-            <p id="payAmountText" className="text-lg font-black text-indigo-700">
-              {lang === 'bn' ? `নির্ধারিত মূল্য: ${formatINR(totalCost)}` : `Payable Amount: ${formatINR(totalCost)}`}
-            </p>
-            <p className="text-xs text-slate-500 mt-0.5">
-              {documentName} ({pages} {lang === 'bn' ? 'পেজ' : 'pages'} × {copies} {lang === 'bn' ? 'কপি' : 'copies'})
-            </p>
-          </div>
+          {/* Exact element id="payAmountText" */}
+          <p id="payAmountText" className="text-sm font-semibold text-indigo-600 mb-1">
+            {t.payAmountPrefix + totalCost}
+          </p>
 
-          {/* Automated status promise matching prompt: */}
-          <p className="text-xs text-green-700 font-semibold bg-emerald-50 py-2 px-3 rounded-xl border border-emerald-200 animate-pulse">
-            {lang === 'bn'
-              ? 'পেমেন্ট সফল হওয়ার সাথে সাথে প্রিন্টার থেকে কাগজ বেরিয়ে আসবে...'
-              : 'As soon as payment succeeds, the printer will dispense your papers...'}
+          <p className="text-xs text-slate-500">
+            {documentName} ({pages} {lang === 'bn' ? 'পেজ' : 'pages'} × {copies} {lang === 'bn' ? 'কপি' : 'copies'})
+          </p>
+
+          {/* Exact element id="lblAutoPrintNotice" */}
+          <p id="lblAutoPrintNotice" className="text-xs text-green-600 font-semibold animate-pulse bg-emerald-50 py-2 px-3 rounded-xl border border-emerald-200">
+            {t.autoPrintNotice}
           </p>
 
           {/* Direct Confirmation Action */}
@@ -190,7 +188,7 @@ export const PhonePeQrModal: React.FC<PhonePeQrModalProps> = ({
               {isVerifying ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>{lang === 'bn' ? 'পেমেন্ট ভেরিফাই হচ্ছে...' : 'Verifying UPI Payment...'}</span>
+                  <span>{lang === 'bn' ? 'পেমেন্ট যাচাই হচ্ছে...' : 'Verifying UPI Payment...'}</span>
                 </>
               ) : (
                 <>

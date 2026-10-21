@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Upload, FileText, Image as ImageIcon, CheckCircle2, RefreshCw, Eye } from 'lucide-react';
 import type { PrintDocument } from '../types.ts';
 import { SAMPLE_DOCUMENTS } from '../data/sampleDocs.ts';
-import { formatBytes } from '../utils/printCalculator.ts';
+import { formatBytes, translations } from '../utils/printCalculator.ts';
 import { soundFx } from '../utils/audioSynth.ts';
 
 interface FileUploaderProps {
@@ -17,7 +17,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   lang,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isDragging, setIsDragging] = React.useState(false);
+  const t = translations[lang] || translations.bn;
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -43,81 +43,38 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     reader.readAsDataURL(file);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      soundFx.playClick();
-      const isImage = file.type.startsWith('image/');
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const previewUrl = (event.target?.result as string) || '';
-        const estimatedPages = isImage ? 1 : Math.max(1, Math.min(15, Math.ceil(file.size / (150 * 1024))));
-        const newDoc: PrintDocument = {
-          id: `upload-${Date.now()}`,
-          name: file.name,
-          sizeBytes: file.size,
-          type: file.type || 'application/octet-stream',
-          previewUrl: previewUrl,
-          pageCount: estimatedPages,
-        };
-        onSelectDocument(newDoc);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   return (
     <div className="space-y-4">
-      {/* Upload Box matching: <label>১. আপনার ডকুমেন্ট (PDF / Image) আপলোড করুন:</label> */}
+      {/* Step 1: File Upload matching exact ID and element */}
       <div>
         <label
+          id="lblStep1"
           htmlFor="fileInput"
-          className="block text-sm font-semibold text-slate-800 mb-1 flex items-center justify-between"
+          className="block text-sm font-semibold text-gray-700 mb-1"
         >
-          <span>
-            {lang === 'bn'
-              ? '১. আপনার ডকুমেন্ট (PDF / Image) আপলোড করুন:'
-              : '1. Upload your document (PDF / Image):'}
-          </span>
-          <span className="text-xs font-normal text-slate-500">
-            {lang === 'bn' ? 'সর্বোচ্চ ২৫ মেগাবাইট' : 'Max 25 MB'}
-          </span>
+          {t.step1}
         </label>
 
-        {/* Always rendered native input as requested in prompt */}
+        {/* Exact input tag specified in prompt */}
         <input
           type="file"
           id="fileInput"
           ref={fileInputRef}
           accept=".pdf,image/*"
           onChange={handleFileUpload}
-          className="w-full border text-sm p-2 rounded-lg bg-slate-50 focus:outline-indigo-500 text-slate-800 border-slate-300 mb-2 cursor-pointer"
+          className="w-full border text-sm p-2 rounded-lg bg-slate-50 focus:outline-indigo-500 border-slate-300 text-slate-800 cursor-pointer"
         />
 
         {document && (
           /* Active Document Preview Card */
-          <div className="border border-indigo-200 bg-indigo-50/40 rounded-xl p-3 flex flex-col sm:flex-row items-center gap-3 transition-all">
-            <div className="w-16 h-20 bg-white border border-slate-200 rounded-lg shadow-xs overflow-hidden flex items-center justify-center shrink-0 relative group">
+          <div className="border border-indigo-200 bg-indigo-50/40 rounded-xl p-3 flex flex-col sm:flex-row items-center gap-3 transition-all mt-2.5">
+            <div className="w-14 h-16 bg-white border border-slate-200 rounded-lg shadow-xs overflow-hidden flex items-center justify-center shrink-0">
               {document.previewUrl ? (
                 <img
                   src={document.previewUrl}
                   alt={document.name}
                   className="w-full h-full object-cover"
                 />
-              ) : document.type.startsWith('image/') ? (
-                <ImageIcon className="w-6 h-6 text-indigo-500" />
               ) : (
                 <FileText className="w-6 h-6 text-indigo-600" />
               )}
@@ -154,12 +111,12 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         )}
       </div>
 
-      {/* Quick Sample Document Picker for instant testing */}
+      {/* Quick Sample Document Picker for 1-click test */}
       <div className="pt-0.5">
         <p className="text-xs font-medium text-slate-500 mb-1.5">
           {lang === 'bn'
             ? 'অথবা দ্রুত টেস্ট করতে নমুনা ডকুমেন্ট বেছে নিন:'
-            : 'Or select a sample document to test in 1-click:'}
+            : 'Or pick a sample file to test in 1-click:'}
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {SAMPLE_DOCUMENTS.map((sample) => {

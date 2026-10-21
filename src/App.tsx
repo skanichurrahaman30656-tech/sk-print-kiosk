@@ -6,6 +6,7 @@ import { PhonePeQrModal } from './components/PhonePeQrModal.tsx';
 import { PrinterAnimationModal } from './components/PrinterAnimationModal.tsx';
 import { ReceiptModal } from './components/ReceiptModal.tsx';
 import { AdminQueueView } from './components/AdminQueueView.tsx';
+import { KioskForm } from './components/KioskForm.tsx';
 import { SAMPLE_DOCUMENTS } from './data/sampleDocs.ts';
 import { DEFAULT_RATES, SHOP_CONFIG, generateToken } from './utils/printCalculator.ts';
 import { testConnection, savePrintJobToFirestore, subscribePrintJobs } from './firebase.ts';
@@ -159,6 +160,52 @@ export default function App() {
     setActivePrintingJob(newJob);
   };
 
+  const handleKioskOrderSubmit = (jobData: {
+    docCategory: '5' | '10' | '30';
+    pages: number;
+    copies: number;
+    totalCost: number;
+    document: PrintDocument;
+    croppedDataUrl?: string;
+  }) => {
+    setIsProcessing(true);
+    setStatusMessage(
+      lang === 'bn'
+        ? 'পেমেন্ট সফল হওয়ার সাথে সাথে প্রিন্টার থেকে কাগজ বেরিয়ে আসবে...'
+        : 'Payment received! Printer is now outputting sheets...'
+    );
+
+    const categoryText =
+      jobData.docCategory === '5'
+        ? 'ব্ল্যাক অ্যান্ড হোয়াইট প্রিন্ট (₹৫ / পেজ)'
+        : jobData.docCategory === '10'
+        ? 'কালার প্রিন্ট (₹১০ / পেজ)'
+        : 'ফটো পেপার প্রিন্ট (₹৩০ / পেজ)';
+
+    const newJob: PrintJob = {
+      id: `job-${Date.now()}`,
+      tokenNumber: generateToken(),
+      document: jobData.document,
+      docCategory: jobData.docCategory,
+      categoryLabel: categoryText,
+      printType: jobData.docCategory === '30' ? 'photo' : jobData.docCategory === '10' ? 'color' : 'bw',
+      paperSize: 'a4',
+      pageRangeMode: 'all',
+      effectivePages: jobData.pages,
+      copies: jobData.copies,
+      duplexMode: 'single',
+      binding: 'none',
+      totalCost: jobData.totalCost,
+      paymentMethod: 'phonepe',
+      paymentTrxId: `UPI${Math.floor(100000000000 + Math.random() * 900000000000)}`,
+      status: 'printing',
+      createdAt: new Date().toISOString(),
+      printedPagesCount: jobData.pages * jobData.copies,
+    };
+
+    setActivePrintingJob(newJob);
+  };
+
   // Handle Printer Finish & Save to Firestore
   const handlePrinterAnimationFinish = () => {
     if (!activePrintingJob) return;
@@ -197,7 +244,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-['Hind_Siliguri',sans-serif]">
+    <div className="min-h-screen bg-gray-200 flex flex-col font-['Hind_Siliguri',sans-serif]">
       {/* Header */}
       <Header
         activeTab={activeTab}
@@ -210,9 +257,9 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 sm:px-6">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6 sm:px-6 flex flex-col items-center justify-center">
         {activeTab === 'kiosk' ? (
-          <div>
+          <div className="w-full flex justify-center">
             {completedJob ? (
               <ReceiptModal
                 job={completedJob}
@@ -220,34 +267,12 @@ export default function App() {
                 lang={lang}
               />
             ) : (
-              /* Elevated Kiosk Card strictly matching prompt structure */
-              <div className="max-w-md md:max-w-xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden p-6 sm:p-8 border border-slate-200">
-                {/* Shop Title and Location */}
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-center text-indigo-600 mb-1">
-                  {SHOP_CONFIG.shopName}
-                </h2>
-                <p className="text-xs sm:text-sm text-center text-gray-500 mb-6 font-medium">
-                  {lang === 'bn' ? SHOP_CONFIG.locationBn : SHOP_CONFIG.locationEn}
-                </p>
-
-                {/* ১. ফাইল আপলোড */}
-                <div className="mb-5 pb-5 border-b border-slate-200">
-                  <FileUploader
-                    document={selectedDocument}
-                    onSelectDocument={setSelectedDocument}
-                    lang={lang}
-                  />
-                </div>
-
-                {/* ২. প্রিন্ট ফর্ম */}
-                <PrintConfigForm
-                  document={selectedDocument}
-                  onSubmit={handleConfigSubmit}
-                  lang={lang}
-                  isProcessing={isProcessing}
-                  statusMessage={statusMessage}
-                />
-              </div>
+              <KioskForm
+                lang={lang}
+                onLanguageChange={setLang}
+                onOpenAdminPanel={() => setActiveTab('queue')}
+                onSubmitOrder={handleKioskOrderSubmit}
+              />
             )}
           </div>
         ) : (

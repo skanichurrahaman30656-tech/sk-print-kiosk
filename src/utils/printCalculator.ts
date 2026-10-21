@@ -10,16 +10,57 @@ export const SHOP_CONFIG = {
 };
 
 export const DEFAULT_RATES: PricingRates = {
-  smallDocPerPage: 5,        // ₹5 ছোট ডকুমেন্টস
-  largeAadhaarPerPage: 10,   // ₹10 বড় ডকুমেন্টস / ফটো বা আধার সাইজ
+  smallDocPerPage: 5,        // ₹5
+  largeAadhaarPerPage: 10,   // ₹10
   bwPerPage: 5,
   colorPerPage: 10,
-  photoPerPage: 25,
+  photoPerPage: 30,          // ₹30
   legalPaperAddon: 2,
   a3PaperAddon: 5,
   duplexDiscountRatio: 0.15,
   stapleFee: 5,
   spiralFee: 30,
+};
+
+export const translations = {
+  bn: {
+    subtitle: "সেল্ফ-সার্ভিস প্রিন্ট কাউন্টার (দেগঙ্গা)",
+    step1: "১. আপনার ফাইল আপলোড করুন (PDF / ছবি):",
+    step2: "২. প্রিন্টের ধরন বা কাগজ নির্বাচন করুন:",
+    optBW: "ব্ল্যাক অ্যান্ড হোয়াইট প্রিন্ট (₹৫ / পেজ)",
+    optColor: "কালার প্রিন্ট (₹১০ / পেজ)",
+    optPhoto: "ফটো পেপার প্রিন্ট (₹৩০ / পেজ)",
+    pages: "মোট পেজ সংখ্যা:",
+    copies: "কপির সংখ্যা:",
+    total: "মোট মূল্য:",
+    btnSubmit: "পেমেন্ট এবং প্রিন্ট আউট",
+    footerNotice: "নিচের বাটনে চাপ দিয়ে পেমেন্ট করুন এবং সরাসরি প্রিন্ট আউট গ্রহণ করুন।",
+    scanTitle: "PhonePe / UPI দিয়ে স্ক্যান করুন",
+    payee: "প্রাপক: SK ANISUR RAHAMAN (9775743613-2@axl)",
+    payAmountPrefix: "নির্ধারিত মূল্য: ₹",
+    autoPrintNotice: "পেমেন্ট সফল হওয়ার সাথে সাথেই আপনার প্রিন্ট শুরু হয়ে যাবে...",
+    cropInstruction: "প্রয়োজন অনুযায়ী আপনার ছবিটি ক্রপ করুন:",
+    btnConfirmCrop: "ক্রপ কনফার্ম করুন"
+  },
+  en: {
+    subtitle: "Self-Service Print Kiosk (Deganga)",
+    step1: "1. Upload Your File (PDF / Image):",
+    step2: "2. Select Print Category or Paper:",
+    optBW: "Black & White Print (₹5 / Page)",
+    optColor: "Color Print (₹10 / Page)",
+    optPhoto: "Photo Paper Print (₹30 / Page)",
+    pages: "Total Pages:",
+    copies: "Number of Copies:",
+    total: "Total Amount:",
+    btnSubmit: "Payment & Print Out",
+    footerNotice: "Press the button below to make payment and receive your print out directly.",
+    scanTitle: "Scan & Pay via PhonePe / UPI",
+    payee: "Payee: SK ANISUR RAHAMAN (9775743613-2@axl)",
+    payAmountPrefix: "Payable Amount: ₹",
+    autoPrintNotice: "Printing will start automatically once payment is successful...",
+    cropInstruction: "Crop your image as needed:",
+    btnConfirmCrop: "Confirm Crop"
+  }
 };
 
 /**

@@ -1,4 +1,4 @@
-export type DocCategory = '5' | '10'; // 5: ছোট ডকুমেন্টস, 10: বড় ডকুমেন্টস / ফটো বা আধার সাইজ
+export type DocCategory = '5' | '10' | '30'; // 5: B&W, 10: Color, 30: Photo Paper
 
 export type PrintType = 'bw' | 'color' | 'photo';
 
@@ -15,11 +15,11 @@ export type PaymentMethod = 'phonepe' | 'upi' | 'gpay' | 'paytm' | 'card' | 'cou
 export type JobStatus = 'draft' | 'pending_payment' | 'paid' | 'spooling' | 'printing' | 'completed' | 'cancelled';
 
 export interface PricingRates {
-  smallDocPerPage: number;      // ₹5 (ছোট ডকুমেন্টস)
-  largeAadhaarPerPage: number;  // ₹10 (বড় ডকুমেন্টস / ফটো বা আধার সাইজ)
+  smallDocPerPage: number;      // ₹5
+  largeAadhaarPerPage: number;  // ₹10
   bwPerPage: number;            // ₹5
   colorPerPage: number;         // ₹10
-  photoPerPage: number;         // ₹25
+  photoPerPage: number;         // ₹30
   legalPaperAddon: number;      // ₹2
   a3PaperAddon: number;         // ₹5
   duplexDiscountRatio: number;  // 0.15

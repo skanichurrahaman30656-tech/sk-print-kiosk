@@ -28,6 +28,16 @@ test('calculateSKTotal calculates ₹10 large Aadhaar document accurately', () =
   assert.equal(total, 40);
 });
 
+test('calculateSKTotal calculates ₹30 photo paper print accurately', () => {
+  // 30 per page * 2 pages * 1 copy = ₹60
+  const total = calculateSKTotal({
+    pricePerPage: 30,
+    pages: 2,
+    copies: 1,
+  });
+  assert.equal(total, 60);
+});
+
 test('generateUpiUrl generates valid PhonePe UPI string for SK ANISUR RAHAMAN', () => {
   const upiUrl = generateUpiUrl({
     amount: 15,

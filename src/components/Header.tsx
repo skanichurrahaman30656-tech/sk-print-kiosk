@@ -126,7 +126,7 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-800 bg-white hover:bg-slate-50 transition-colors shadow-xs"
           >
             <Languages className="w-3.5 h-3.5 text-indigo-600" />
-            <span>{lang === 'bn' ? 'English (India)' : 'বাংলা (ভারত)'}</span>
+            <span>{lang === 'bn' ? 'English' : 'বাংলা'}</span>
           </button>
         </div>
       </div>

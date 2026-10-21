@@ -6,14 +6,13 @@ import {
   Plus,
   ArrowRight,
   QrCode,
-  Tag,
-  CheckCircle,
+  Image as ImageIcon,
 } from 'lucide-react';
 import type { DocCategory, PrintDocument } from '../types.ts';
 import {
   calculateSKTotal,
   formatINR,
-  SHOP_CONFIG,
+  translations,
 } from '../utils/printCalculator.ts';
 import { soundFx } from '../utils/audioSynth.ts';
 
@@ -42,6 +41,8 @@ export const PrintConfigForm: React.FC<PrintConfigFormProps> = ({
   const [pageCount, setPageCount] = useState<number>(1);
   const [copyCount, setCopyCount] = useState<number>(1);
   const [validationError, setValidationError] = useState<string>('');
+
+  const t = translations[lang] || translations.bn;
 
   // Sync document detected page count if available
   useEffect(() => {
@@ -76,8 +77,8 @@ export const PrintConfigForm: React.FC<PrintConfigFormProps> = ({
     if (!document) {
       setValidationError(
         lang === 'bn'
-          ? 'অনুগ্রহ করে প্রথমে একটি ডকুমেন্ট আপলোড করুন বা নমুনা ফাইল নির্বাচন করুন।'
-          : 'Please upload a document or select a sample file first.'
+          ? 'অনুগ্রহ করে প্রথমে একটি ফাইল আপলোড করুন বা নমুনা নির্বাচন করুন।'
+          : 'Please upload a file or select a sample first.'
       );
       return;
     }
@@ -94,103 +95,134 @@ export const PrintConfigForm: React.FC<PrintConfigFormProps> = ({
   };
 
   return (
-    <form id="printForm" onSubmit={handleSubmit} className="space-y-5">
-      {/* ২. প্রিন্টের ক্যাটাগরি বেছে নিন: (select id="docType") */}
+    <form id="printForm" onSubmit={handleSubmit} className="space-y-4">
+      {/* Step 2: Print Category */}
       <div>
-        <label htmlFor="docType" className="block text-sm font-semibold text-slate-800 mb-1.5 flex items-center justify-between">
-          <span>
-            {lang === 'bn' ? '২. প্রিন্টের ক্যাটাগরি বেছে নিন:' : '2. Select Print Category:'}
-          </span>
-          <span className="text-xs text-indigo-600 font-bold">
-            {docType === '5' ? '₹৫/পেজ' : '₹১০/পেজ'}
-          </span>
+        <label id="lblStep2" htmlFor="docType" className="block text-sm font-semibold text-gray-700 mb-1">
+          {t.step2}
         </label>
-
-        {/* Native select as requested in user's prompt */}
+        
+        {/* Exact native select element with options and IDs from user prompt */}
         <select
           id="docType"
           value={docType}
           onChange={(e) => handleDocTypeChange(e.target.value as DocCategory)}
-          className="w-full border text-sm p-3 rounded-xl bg-slate-50 focus:bg-white focus:outline-indigo-500 font-medium text-slate-900 border-slate-300 shadow-xs mb-2 cursor-pointer"
+          className="w-full border text-sm p-2.5 rounded-lg bg-slate-50 focus:bg-white focus:outline-indigo-500 font-medium text-slate-900 border-slate-300 shadow-xs cursor-pointer mb-2"
         >
-          <option value="5">ছোট ডকুমেন্টস (₹৫ প্রতি পেজ)</option>
-          <option value="10">বড় ডকুমেন্টস / ফটো বা আধার সাইজ (₹১০ প্রতি পেজ)</option>
+          <option value="5" id="optBW">
+            {t.optBW}
+          </option>
+          <option value="10" id="optColor">
+            {t.optColor}
+          </option>
+          <option value="30" id="optPhoto">
+            {t.optPhoto}
+          </option>
         </select>
 
-        {/* Visual Category Selection Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+        {/* Visual Cards for 3 categories */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+          {/* 5: B&W */}
           <button
             type="button"
             onClick={() => handleDocTypeChange('5')}
-            className={`p-3.5 rounded-xl border-2 text-left transition-all relative flex items-center justify-between ${
+            className={`p-3 rounded-xl border-2 text-left transition-all relative flex flex-col justify-between ${
               docType === '5'
-                ? 'border-indigo-600 bg-indigo-50/70 shadow-xs'
+                ? 'border-indigo-600 bg-indigo-50/70 shadow-xs ring-1 ring-indigo-500/20'
                 : 'border-slate-200 bg-white hover:border-slate-300'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
-                <FileText className="w-5 h-5" />
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center">
+                <FileText className="w-4 h-4" />
               </div>
-              <div>
-                <p className="font-bold text-slate-900 text-sm">
-                  {lang === 'bn' ? 'ছোট ডকুমেন্টস' : 'Small Documents'}
-                </p>
-                <p className="text-xs text-slate-500">
-                  {lang === 'bn' ? 'বায়োডাটা, সাধারণ A4 পেপার' : 'Standard A4 texts'}
-                </p>
-              </div>
+              <span className="text-xs font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">
+                ₹5/{lang === 'bn' ? 'পেজ' : 'page'}
+              </span>
             </div>
-            <span className="text-sm font-extrabold text-indigo-700 bg-white px-2.5 py-1 rounded-lg border border-indigo-200">
-              ₹5/{lang === 'bn' ? 'পেজ' : 'page'}
-            </span>
+            <div>
+              <p className="font-bold text-slate-900 text-xs">
+                {lang === 'bn' ? 'ব্ল্যাক অ্যান্ড হোয়াইট' : 'Black & White'}
+              </p>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                {lang === 'bn' ? 'সাধারণ ডকুমেন্ট' : 'Standard text'}
+              </p>
+            </div>
           </button>
 
+          {/* 10: Color */}
           <button
             type="button"
             onClick={() => handleDocTypeChange('10')}
-            className={`p-3.5 rounded-xl border-2 text-left transition-all relative flex items-center justify-between ${
+            className={`p-3 rounded-xl border-2 text-left transition-all relative flex flex-col justify-between ${
               docType === '10'
-                ? 'border-indigo-600 bg-indigo-50/70 shadow-xs'
+                ? 'border-indigo-600 bg-indigo-50/70 shadow-xs ring-1 ring-indigo-500/20'
                 : 'border-slate-200 bg-white hover:border-slate-300'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#5f259f] flex items-center justify-center shrink-0">
-                <Sparkles className="w-5 h-5" />
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 text-white flex items-center justify-center">
+                <Sparkles className="w-4 h-4" />
               </div>
-              <div>
-                <p className="font-bold text-slate-900 text-sm">
-                  {lang === 'bn' ? 'বড় / ফটো / আধার সাইজ' : 'Photo / Aadhaar Print'}
-                </p>
-                <p className="text-xs text-slate-500">
-                  {lang === 'bn' ? 'আধার কার্ড, কালার ছবি' : 'Aadhaar, Color card'}
-                </p>
-              </div>
+              <span className="text-xs font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md">
+                ₹10/{lang === 'bn' ? 'পেজ' : 'page'}
+              </span>
             </div>
-            <span className="text-sm font-extrabold text-[#5f259f] bg-white px-2.5 py-1 rounded-lg border border-purple-200">
-              ₹10/{lang === 'bn' ? 'পেজ' : 'page'}
-            </span>
+            <div>
+              <p className="font-bold text-slate-900 text-xs">
+                {lang === 'bn' ? 'কালার প্রিন্ট' : 'Color Print'}
+              </p>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                {lang === 'bn' ? 'রঙিন ও আধার সাইজ' : 'Vibrant CMYK'}
+              </p>
+            </div>
+          </button>
+
+          {/* 30: Photo Paper */}
+          <button
+            type="button"
+            onClick={() => handleDocTypeChange('30')}
+            className={`p-3 rounded-xl border-2 text-left transition-all relative flex flex-col justify-between ${
+              docType === '30'
+                ? 'border-indigo-600 bg-indigo-50/70 shadow-xs ring-1 ring-indigo-500/20'
+                : 'border-slate-200 bg-white hover:border-slate-300'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center">
+                <ImageIcon className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">
+                ₹30/{lang === 'bn' ? 'পেজ' : 'page'}
+              </span>
+            </div>
+            <div>
+              <p className="font-bold text-slate-900 text-xs">
+                {lang === 'bn' ? 'ফটো পেপার' : 'Photo Paper'}
+              </p>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                {lang === 'bn' ? 'গ্লসি ও ল্যাব কোয়ালিটি' : 'Glossy finish'}
+              </p>
+            </div>
           </button>
         </div>
       </div>
 
-      {/* পেজ ও কপি সংখ্যা row (input id="pageCount" and id="copyCount") */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* মোট পেজ সংখ্যা */}
+      {/* Step 3: Pages & Copies */}
+      <div className="grid grid-cols-2 gap-3">
         <div>
-          <label htmlFor="pageCount" className="block text-sm font-semibold text-slate-700 mb-1">
-            {lang === 'bn' ? 'মোট পেজ সংখ্যা:' : 'Total Pages:'}
+          <label id="lblPages" htmlFor="pageCount" className="block text-sm font-semibold text-gray-700 mb-1">
+            {t.pages}
           </label>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => handlePageChange(pageCount - 1)}
               disabled={pageCount <= 1}
               aria-label="Decrease page count"
-              className="w-10 h-10 rounded-lg border border-slate-300 bg-white text-slate-700 flex items-center justify-center hover:bg-slate-100 disabled:opacity-40 shadow-xs"
+              className="w-9 h-9 rounded-lg border border-slate-300 bg-white text-slate-700 flex items-center justify-center hover:bg-slate-100 disabled:opacity-40 shadow-xs shrink-0"
             >
-              <Minus className="w-4 h-4" />
+              <Minus className="w-3.5 h-3.5" />
             </button>
             <input
               type="number"
@@ -198,34 +230,32 @@ export const PrintConfigForm: React.FC<PrintConfigFormProps> = ({
               value={pageCount}
               min="1"
               onChange={(e) => handlePageChange(parseInt(e.target.value, 10) || 1)}
-              required
-              className="flex-1 text-center font-bold text-base border text-sm p-2.5 rounded-lg bg-slate-50 focus:bg-white border-slate-300 focus:outline-indigo-500 text-slate-900 shadow-xs"
+              className="w-full border text-sm p-2 rounded-lg bg-slate-50 focus:bg-white focus:outline-indigo-500 font-bold text-center text-slate-900 border-slate-300 shadow-xs"
             />
             <button
               type="button"
               onClick={() => handlePageChange(pageCount + 1)}
               aria-label="Increase page count"
-              className="w-10 h-10 rounded-lg border border-slate-300 bg-white text-slate-700 flex items-center justify-center hover:bg-slate-100 shadow-xs"
+              className="w-9 h-9 rounded-lg border border-slate-300 bg-white text-slate-700 flex items-center justify-center hover:bg-slate-100 shadow-xs shrink-0"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
-        {/* কপির সংখ্যা */}
         <div>
-          <label htmlFor="copyCount" className="block text-sm font-semibold text-slate-700 mb-1">
-            {lang === 'bn' ? 'কপির সংখ্যা:' : 'Number of Copies:'}
+          <label id="lblCopies" htmlFor="copyCount" className="block text-sm font-semibold text-gray-700 mb-1">
+            {t.copies}
           </label>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => handleCopyChange(copyCount - 1)}
               disabled={copyCount <= 1}
               aria-label="Decrease copy count"
-              className="w-10 h-10 rounded-lg border border-slate-300 bg-white text-slate-700 flex items-center justify-center hover:bg-slate-100 disabled:opacity-40 shadow-xs"
+              className="w-9 h-9 rounded-lg border border-slate-300 bg-white text-slate-700 flex items-center justify-center hover:bg-slate-100 disabled:opacity-40 shadow-xs shrink-0"
             >
-              <Minus className="w-4 h-4" />
+              <Minus className="w-3.5 h-3.5" />
             </button>
             <input
               type="number"
@@ -233,33 +263,32 @@ export const PrintConfigForm: React.FC<PrintConfigFormProps> = ({
               value={copyCount}
               min="1"
               onChange={(e) => handleCopyChange(parseInt(e.target.value, 10) || 1)}
-              required
-              className="flex-1 text-center font-bold text-base border text-sm p-2.5 rounded-lg bg-slate-50 focus:bg-white border-slate-300 focus:outline-indigo-500 text-slate-900 shadow-xs"
+              className="w-full border text-sm p-2 rounded-lg bg-slate-50 focus:bg-white focus:outline-indigo-500 font-bold text-center text-slate-900 border-slate-300 shadow-xs"
             />
             <button
               type="button"
               onClick={() => handleCopyChange(copyCount + 1)}
               aria-label="Increase copy count"
-              className="w-10 h-10 rounded-lg border border-slate-300 bg-white text-slate-700 flex items-center justify-center hover:bg-slate-100 shadow-xs"
+              className="w-9 h-9 rounded-lg border border-slate-300 bg-white text-slate-700 flex items-center justify-center hover:bg-slate-100 shadow-xs shrink-0"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* মোট পেমেন্ট বক্স (Strictly matching: <span id="totalPrice" class="text-2xl font-extrabold text-indigo-600">₹5</span>) */}
+      {/* Total Price Display */}
       <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 flex justify-between items-center shadow-xs">
         <div>
-          <span className="text-sm font-bold text-indigo-900 block">
-            {lang === 'bn' ? 'মোট পেমেন্ট করতে হবে:' : 'Total Amount Payable:'}
+          <span id="lblTotal" className="text-sm font-bold text-indigo-900 block">
+            {t.total}
           </span>
           <span className="text-xs text-indigo-600 font-medium">
-            (₹{pricePerPage} × {pageCount} {lang === 'bn' ? 'পেজ' : 'pg'} × {copyCount} {lang === 'bn' ? 'কপি' : 'c'})
+            (₹{pricePerPage} × {pageCount} × {copyCount})
           </span>
         </div>
         <span id="totalPrice" className="text-2xl font-extrabold text-indigo-600">
-          {formatINR(totalPrice)}
+          ₹{totalPrice}
         </span>
       </div>
 
@@ -269,27 +298,25 @@ export const PrintConfigForm: React.FC<PrintConfigFormProps> = ({
         </div>
       )}
 
-      {/* পেমেন্ট ও প্রিন্ট বাটন (Strictly matching: "স্ক্যান কিউআর ও পেমেন্ট করুন") */}
+      {/* Submit Button */}
       <button
         type="submit"
+        id="btnSubmit"
         disabled={isProcessing}
-        className="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2.5 text-base cursor-pointer"
+        className="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold py-3.5 px-4 rounded-xl transition shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer text-base"
       >
         <QrCode className="w-5 h-5" />
-        <span>
-          {lang === 'bn' ? 'স্ক্যান কিউআর ও পেমেন্ট করুন' : 'Scan QR & Pay'}
-        </span>
+        <span>{t.btnSubmit}</span>
         <span className="px-2 py-0.5 rounded-full bg-indigo-500/50 text-xs font-mono ml-1">
-          {formatINR(totalPrice)}
+          ₹{totalPrice}
         </span>
-        <ArrowRight className="w-4 h-4" />
       </button>
 
       {/* Status indicator */}
       {statusMessage && (
         <div
           id="status"
-          className="mt-4 text-center font-semibold text-xs text-slate-600"
+          className="mt-3 text-center font-semibold text-xs text-slate-600"
         >
           {statusMessage}
         </div>
