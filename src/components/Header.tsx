@@ -11,6 +11,7 @@ interface HeaderProps {
   soundEnabled: boolean;
   setSoundEnabled: (val: boolean) => void;
   pendingJobsCount: number;
+  isCustomerMode?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   soundEnabled,
   setSoundEnabled,
   pendingJobsCount,
+  isCustomerMode = false,
 }) => {
   const toggleSound = () => {
     const next = !soundEnabled;
@@ -61,44 +63,46 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* View Switcher Tabs */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-sm font-medium">
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab('kiosk');
-              soundFx.playClick();
-            }}
-            className={`px-3 sm:px-4 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-              activeTab === 'kiosk'
-                ? 'bg-white text-indigo-700 shadow-xs font-semibold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Printer className="w-4 h-4" />
-            <span>{lang === 'bn' ? 'সেল্ফ কাউন্টার' : 'Kiosk'}</span>
-          </button>
+        {!isCustomerMode && (
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-sm font-medium">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('kiosk');
+                soundFx.playClick();
+              }}
+              className={`px-3 sm:px-4 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                activeTab === 'kiosk'
+                  ? 'bg-white text-indigo-700 shadow-xs font-semibold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Printer className="w-4 h-4" />
+              <span>{lang === 'bn' ? 'সেল্ফ কাউন্টার' : 'Kiosk'}</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab('queue');
-              soundFx.playClick();
-            }}
-            className={`px-3 sm:px-4 py-1.5 rounded-lg transition-all flex items-center gap-1.5 relative ${
-              activeTab === 'queue'
-                ? 'bg-white text-indigo-700 shadow-xs font-semibold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <ShieldCheck className="w-4 h-4" />
-            <span>{lang === 'bn' ? 'অর্ডার কিউ ও রেকর্ড' : 'Queue & Sales'}</span>
-            {pendingJobsCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center">
-                {pendingJobsCount}
-              </span>
-            )}
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('queue');
+                soundFx.playClick();
+              }}
+              className={`px-3 sm:px-4 py-1.5 rounded-lg transition-all flex items-center gap-1.5 relative ${
+                activeTab === 'queue'
+                  ? 'bg-white text-indigo-700 shadow-xs font-semibold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>{lang === 'bn' ? 'অর্ডার কিউ ও রেকর্ড' : 'Queue & Sales'}</span>
+              {pendingJobsCount > 0 && (
+                <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center">
+                  {pendingJobsCount}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
 
         {/* Quick controls: Audio & Language */}
         <div className="flex items-center gap-2">

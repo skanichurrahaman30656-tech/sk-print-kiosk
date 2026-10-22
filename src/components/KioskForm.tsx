@@ -11,6 +11,7 @@ interface KioskFormProps {
   lang: 'bn' | 'en';
   onLanguageChange: (newLang: 'bn' | 'en') => void;
   onOpenAdminPanel: () => void;
+  isCustomerMode?: boolean;
   onSubmitOrder: (jobData: {
     docCategory: '5' | '10' | '30';
     pages: number;
@@ -25,6 +26,7 @@ export const KioskForm: React.FC<KioskFormProps> = ({
   lang,
   onLanguageChange,
   onOpenAdminPanel,
+  isCustomerMode = false,
   onSubmitOrder,
 }) => {
   const t = translations[lang] || translations.bn;
@@ -263,32 +265,34 @@ export const KioskForm: React.FC<KioskFormProps> = ({
   return (
     <div className="w-full flex flex-col items-center">
       {/* Top Admin Bar (শুধুমাত্র দোকানদারের জন্য) */}
-      <div className="w-full max-w-3xl flex justify-between items-center mb-3 px-2">
-        <div className="flex items-center space-x-2">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-300">
-            ● কাউন্টার সক্রিয় (Firestore Live)
-          </span>
-          <span className="hidden sm:inline-block text-xs font-semibold text-gray-600">
-            PhonePe UPI Accepted
-          </span>
+      {!isCustomerMode && (
+        <div className="w-full max-w-3xl flex justify-between items-center mb-3 px-2">
+          <div className="flex items-center space-x-2">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-300">
+              ● কাউন্টার সক্রিয় (Firestore Live)
+            </span>
+            <span className="hidden sm:inline-block text-xs font-semibold text-gray-600">
+              PhonePe UPI Accepted
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={generateShopQR}
+              className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow transition cursor-pointer flex items-center gap-1.5"
+            >
+              📲 <span>দোকানের QR কোড</span>
+            </button>
+            <button
+              type="button"
+              onClick={onOpenAdminPanel}
+              className="px-3 py-1.5 bg-indigo-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow transition cursor-pointer flex items-center gap-1.5"
+            >
+              🛡️ <span>অর্ডার কিউ ও রেকর্ড</span>
+            </button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={generateShopQR}
-            className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow transition cursor-pointer flex items-center gap-1.5"
-          >
-            📲 <span>দোকানের QR কোড</span>
-          </button>
-          <button
-            type="button"
-            onClick={onOpenAdminPanel}
-            className="px-3 py-1.5 bg-indigo-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow transition cursor-pointer flex items-center gap-1.5"
-          >
-            🛡️ <span>অর্ডার কিউ ও রেকর্ড</span>
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* Main Card Container (ফুল চওড়া এবং সুন্দর লেআউট) */}
       <div className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-gray-300 p-6 md:p-10">
@@ -564,10 +568,14 @@ export const KioskForm: React.FC<KioskFormProps> = ({
         className={`${showShopQrModal ? 'flex' : 'hidden'} fixed inset-0 bg-black/60 items-center justify-center p-4 z-50 animate-fade-in`}
       >
         <div className="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl border border-gray-200">
-          <h3 className="text-lg font-bold text-gray-800 mb-2">দোকানের জন্য কাস্টমার QR কোড</h3>
-          <p className="text-xs text-gray-500 mb-4">
-            এই QR কোডটি প্রিন্ট করে দোকানে লাগিয়ে রাখুন। গ্রাহক এটি স্ক্যান করেই এই পেজে আসবে।
-          </p>
+          <h3 className="text-base font-bold text-blue-900 mb-1 flex items-center justify-center gap-1">
+            <span>🖨️</span> মোবাইল থেকে সরাসরি প্রিন্ট করুন
+          </h3>
+          <div className="text-left text-xs text-blue-800 bg-blue-50 border border-blue-200 rounded-xl p-3 mb-3 space-y-1 font-medium">
+            <p>১. আপনার ডকুমেন্ট বা ছবি আপলোড করুন।</p>
+            <p>২. প্রিন্টের ধরণ নির্বাচন করুন।</p>
+            <p>৩. পেমেন্ট করুন এবং সাথে সাথে প্রিন্ট আউট পেয়ে যান!</p>
+          </div>
           <div className="flex justify-center mb-4 bg-slate-50 p-3 rounded-2xl border border-slate-200 min-h-[220px] items-center">
             {shopQrUrl ? (
               <img

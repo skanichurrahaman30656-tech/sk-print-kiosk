@@ -18,7 +18,12 @@ import type {
 } from './types.ts';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'kiosk' | 'queue'>('kiosk');
+  const [isCustomerMode, setIsCustomerMode] = useState<boolean>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('mode') === 'customer' || window.location.hash.includes('customer');
+  });
+
+  const [activeTab, setActiveTab] = useState<'kiosk' | 'queue'>(isCustomerMode ? 'kiosk' : 'kiosk');
   const [lang, setLang] = useState<'bn' | 'en'>('bn');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [rates, setRates] = useState<PricingRates>(DEFAULT_RATES);
@@ -254,11 +259,12 @@ export default function App() {
         soundEnabled={soundEnabled}
         setSoundEnabled={setSoundEnabled}
         pendingJobsCount={jobs.filter((j) => j.status === 'printing').length}
+        isCustomerMode={isCustomerMode}
       />
 
       {/* Main Container */}
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6 sm:px-6 flex flex-col items-center justify-center">
-        {activeTab === 'kiosk' ? (
+        {activeTab === 'kiosk' || isCustomerMode ? (
           <div className="w-full flex justify-center">
             {completedJob ? (
               <ReceiptModal
@@ -271,6 +277,7 @@ export default function App() {
                 lang={lang}
                 onLanguageChange={setLang}
                 onOpenAdminPanel={() => setActiveTab('queue')}
+                isCustomerMode={isCustomerMode}
                 onSubmitOrder={handleKioskOrderSubmit}
               />
             )}
