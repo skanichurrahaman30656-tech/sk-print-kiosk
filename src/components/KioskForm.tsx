@@ -568,13 +568,17 @@ export const KioskForm: React.FC<KioskFormProps> = ({
           <p className="text-xs text-gray-500 mb-4">
             এই QR কোডটি প্রিন্ট করে দোকানে লাগিয়ে রাখুন। গ্রাহক এটি স্ক্যান করেই এই পেজে আসবে।
           </p>
-          <div className="flex justify-center mb-4 bg-slate-50 p-3 rounded-2xl border border-slate-200">
-            <img
-              id="shopQrImg"
-              src={shopQrUrl}
-              alt="Shop Counter QR Code"
-              className="w-52 h-52 border p-2 rounded-xl bg-white shadow-sm"
-            />
+          <div className="flex justify-center mb-4 bg-slate-50 p-3 rounded-2xl border border-slate-200 min-h-[220px] items-center">
+            {shopQrUrl ? (
+              <img
+                id="shopQrImg"
+                src={shopQrUrl}
+                alt="Shop Counter QR Code"
+                className="w-52 h-52 border p-2 rounded-xl bg-white shadow-sm"
+              />
+            ) : (
+              <div className="text-xs text-slate-400">QR কোড তৈরি হচ্ছে...</div>
+            )}
           </div>
           <div className="flex gap-2">
             <button
